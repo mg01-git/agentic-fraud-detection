@@ -1,0 +1,5 @@
+.env
+__pycache__/
+*.pyc
+case_files/_archive_stale/
+*.log

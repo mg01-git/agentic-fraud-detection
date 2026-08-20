@@ -1,0 +1,121 @@
+{
+  "results": {
+    "logistic_regression": {
+      "train": {
+        "n": 36845,
+        "fraud_rate": 0.0633,
+        "precision": 0.5274,
+        "recall": 0.7711,
+        "f1": 0.6264,
+        "roc_auc": 0.8663,
+        "confusion_matrix": [
+          [
+            32900,
+            1612
+          ],
+          [
+            534,
+            1799
+          ]
+        ]
+      },
+      "validation": {
+        "n": 8132,
+        "fraud_rate": 0.0675,
+        "precision": 0.5175,
+        "recall": 0.7541,
+        "f1": 0.6138,
+        "roc_auc": 0.8548,
+        "confusion_matrix": [
+          [
+            7197,
+            386
+          ],
+          [
+            135,
+            414
+          ]
+        ]
+      },
+      "test": {
+        "n": 8102,
+        "fraud_rate": 0.0648,
+        "precision": 0.523,
+        "recall": 0.779,
+        "f1": 0.6259,
+        "roc_auc": 0.8742,
+        "confusion_matrix": [
+          [
+            7204,
+            373
+          ],
+          [
+            116,
+            409
+          ]
+        ]
+      }
+    },
+    "random_forest": {
+      "train": {
+        "n": 36845,
+        "fraud_rate": 0.0633,
+        "precision": 0.5285,
+        "recall": 0.7707,
+        "f1": 0.627,
+        "roc_auc": 0.9545,
+        "confusion_matrix": [
+          [
+            32908,
+            1604
+          ],
+          [
+            535,
+            1798
+          ]
+        ]
+      },
+      "validation": {
+        "n": 8132,
+        "fraud_rate": 0.0675,
+        "precision": 0.5201,
+        "recall": 0.7541,
+        "f1": 0.6156,
+        "roc_auc": 0.8575,
+        "confusion_matrix": [
+          [
+            7201,
+            382
+          ],
+          [
+            135,
+            414
+          ]
+        ]
+      },
+      "test": {
+        "n": 8102,
+        "fraud_rate": 0.0648,
+        "precision": 0.5239,
+        "recall": 0.7733,
+        "f1": 0.6246,
+        "roc_auc": 0.8824,
+        "confusion_matrix": [
+          [
+            7208,
+            369
+          ],
+          [
+            119,
+            406
+          ]
+        ]
+      }
+    }
+  },
+  "best_model": "logistic_regression",
+  "n_train": 36845,
+  "n_validation": 8132,
+  "n_test": 8102,
+  "split_method": "user-level GroupShuffleSplit, 70/15/15, random_state=42"
+}
