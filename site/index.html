@@ -3,660 +3,503 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agentic Fraud Detection -- Case Study Gallery</title>
+<title>Fraud Case Review</title>
+<meta name="description" content="A demo fraud-review system: curated cases showing when an LLM agent gets involved, what it checks, and why.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-
 :root {
-  --surface: #ffffff; --surface-alt: #f7f8fa; --border: #e3e6ea;
-  --ink-primary: #1a1d21; --ink-secondary: #4b5158; --ink-muted: #7a828c;
-  --accent: #3d5afe;
-  --good: #1c8a4b; --good-bg: #e8f6ee;
-  --warn: #a9660a; --warn-bg: #fdf1de;
-  --bad: #c22a2a; --bad-bg: #fbe9e9;
+  --ink: #161821;
+  --ink-2: #4B5063;
+  --ink-3: #7B8194;
+  --paper: #F3F4F8;
+  --surface: #FFFFFF;
+  --surface-raised: #FBFBFD;
+  --border: #E1E3EC;
+  --border-soft: #ECEDF3;
+  --accent: #35508C;
+  --accent-ink: #24365E;
+  --accent-soft: #EAF0FA;
+  --good: #1C8A4B; --good-bg: #E7F5EC; --good-border: #C6E7D3;
+  --warn: #A9660A; --warn-bg: #FCF1DE; --warn-border: #F2DBAE;
+  --bad:  #C22A2A; --bad-bg:  #FBEAEA; --bad-border:  #F1C6C6;
+  --shadow: 0 1px 2px rgba(22,24,33,0.04), 0 8px 24px rgba(22,24,33,0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #ECEDF4;
+    --ink-2: #B8BCCC;
+    --ink-3: #82869B;
+    --paper: #14151C;
+    --surface: #1B1D27;
+    --surface-raised: #21232F;
+    --border: #2E3140;
+    --border-soft: #262837;
+    --accent: #7C9CE0;
+    --accent-ink: #DCE6F8;
+    --accent-soft: #223050;
+    --good: #4ED18B; --good-bg: #17301F; --good-border: #275A38;
+    --warn: #E3A73B; --warn-bg: #352A12; --warn-border: #5C4A1F;
+    --bad:  #F0736E; --bad-bg:  #391918; --bad-border:  #5E2C29;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
+  }
 }
 * { box-sizing: border-box; }
-body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  color: var(--ink-primary); background: var(--surface-alt); line-height:1.55; }
-.hero { background: var(--surface); border-bottom:1px solid var(--border); padding: 48px 24px 32px; }
-.hero-inner, .casenav-inner, main { max-width: 920px; margin: 0 auto; }
-.hero h1 { margin:0 0 12px; font-size: 2rem; }
-.tagline { color: var(--ink-secondary); max-width: 760px; }
-.tagline.muted { color: var(--ink-muted); font-size: 0.92rem; }
-.casenav { background: var(--surface); border-bottom:1px solid var(--border); position: sticky; top:0;
-  overflow-x:auto; white-space:nowrap; z-index: 10; }
-.casenav-inner { padding: 10px 24px; }
-.navlink { display:inline-block; margin-right:16px; font-size:0.85rem; color: var(--ink-secondary);
-  text-decoration:none; }
-.navlink:hover { color: var(--accent); }
-main { padding: 24px; }
-.case { background: var(--surface); border:1px solid var(--border); border-radius:10px; padding:24px;
-  margin-bottom:20px; scroll-margin-top: 60px; }
-.case-header { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:6px; }
-.case-header h3 { margin:0; font-size:1.15rem; flex:1 1 auto; }
-.bucket-tag { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; color: var(--ink-muted);
-  border:1px solid var(--border); border-radius: 999px; padding:2px 10px; }
-.badge { font-size:0.85rem; font-weight:600; border-radius:999px; padding:4px 12px; white-space:nowrap; }
-.badge.approve { color: var(--good); background: var(--good-bg); }
-.badge.reject { color: var(--bad); background: var(--bad-bg); }
-.badge.escalate { color: var(--warn); background: var(--warn-bg); }
-.story { color: var(--ink-secondary); font-style: italic; margin: 8px 0 12px; }
-.routed, .gt { font-size:0.85rem; color: var(--ink-muted); margin-bottom:4px; }
-.routed code { background: var(--surface-alt); padding:1px 6px; border-radius:4px; }
-.grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:12px; }
-.grid2 h4 { margin: 12px 0 4px; font-size:0.9rem; color: var(--ink-secondary); }
-.grid2 ul { margin:4px 0; padding-left:20px; font-size:0.92rem; }
-.grid2 p { font-size:0.92rem; margin: 4px 0; }
-details { margin-top:16px; border-top:1px solid var(--border); padding-top:12px; }
-summary { cursor:pointer; font-size:0.85rem; color: var(--accent); font-weight:600; }
-details .grid2 { font-size:0.85rem; }
-details ul { padding-left:18px; }
-footer { text-align:center; color: var(--ink-muted); font-size:0.85rem; padding: 32px 24px 48px; }
-@media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: "Public Sans", -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
+/* ---- Top bar ---- */
+.topbar {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 18px 28px; border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.topbar h1 {
+  font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 1.35rem;
+  margin: 0; letter-spacing: -0.01em;
+}
+.topbar .subtitle { color: var(--ink-3); font-size: 0.82rem; margin-top: 2px; }
+.topbar-right { text-align: right; font-size: 0.78rem; color: var(--ink-3); max-width: 360px; line-height: 1.5; }
+
+/* ---- App shell: rail + detail ---- */
+.app { display: flex; height: calc(100vh - 68px); min-height: 560px; }
+
+.rail {
+  width: 300px; flex-shrink: 0; overflow-y: auto;
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 10px;
+}
+.rail-group-label {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-3); font-weight: 600; padding: 14px 10px 6px;
+}
+.rail-item {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  border: 1px solid transparent; border-left: 3px solid transparent;
+  background: transparent; border-radius: 8px; padding: 10px 10px 10px 11px;
+  margin-bottom: 2px; font-family: inherit; color: inherit;
+}
+.rail-item:hover { background: var(--surface-raised); }
+.rail-item.active { background: var(--accent-soft); border-color: var(--border-soft); border-left-color: var(--accent); }
+.rail-item .ri-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rail-item .ri-title { font-size: 0.85rem; font-weight: 600; line-height: 1.35; }
+.rail-item .ri-id { font-size: 0.68rem; color: var(--ink-3); margin-top: 3px; }
+.chip {
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  border-radius: 999px; padding: 3px 8px; white-space: nowrap; flex-shrink: 0;
+  border: 1px solid transparent;
+}
+.chip.approve { color: var(--good); background: var(--good-bg); border-color: var(--good-border); }
+.chip.reject  { color: var(--bad);  background: var(--bad-bg);  border-color: var(--bad-border); }
+.chip.escalate{ color: var(--warn); background: var(--warn-bg); border-color: var(--warn-border); }
+.chip.auto    { color: var(--ink-3); background: var(--border-soft); border-color: var(--border); }
+
+.detail { flex: 1; overflow-y: auto; }
+.detail-inner { max-width: 760px; margin: 0 auto; padding: 36px 32px 80px; }
+
+.case-eyebrow { display:flex; align-items:center; gap:10px; margin-bottom: 10px; }
+.bucket-tag {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+  color: var(--accent-ink); background: var(--accent-soft); border-radius: 5px; padding: 3px 9px;
+}
+.case-title {
+  font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 1.7rem;
+  line-height: 1.2; text-wrap: balance; margin: 0 0 10px;
+}
+.case-story { color: var(--ink-2); font-size: 0.98rem; line-height: 1.6; margin: 0 0 22px; max-width: 65ch; }
+
+.verdict-row { display:flex; align-items:center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+.verdict-badge {
+  display:flex; align-items:center; gap: 8px; font-size: 1rem; font-weight: 700;
+  border-radius: 10px; padding: 9px 16px; border: 1px solid transparent;
+}
+.verdict-badge.approve { color: var(--good); background: var(--good-bg); border-color: var(--good-border); }
+.verdict-badge.reject  { color: var(--bad);  background: var(--bad-bg);  border-color: var(--bad-border); }
+.verdict-badge.escalate{ color: var(--warn); background: var(--warn-bg); border-color: var(--warn-border); }
+.confidence { font-size: 0.85rem; color: var(--ink-3); }
+.confidence b { color: var(--ink-2); }
+
+.section { margin-bottom: 26px; }
+.section-head { display:flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.section-num {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--accent);
+  background: var(--accent-soft); border-radius: 5px; padding: 2px 6px; font-weight: 500;
+}
+.section-title { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 1.08rem; }
+.section-sub { color: var(--ink-3); font-size: 0.82rem; margin: -6px 0 12px 34px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; box-shadow: var(--shadow);
+}
+ul.factlist { margin: 0; padding-left: 0; list-style: none; }
+ul.factlist li {
+  position: relative; padding-left: 18px; margin-bottom: 9px; font-size: 0.92rem; line-height: 1.5;
+}
+ul.factlist li:last-child { margin-bottom: 0; }
+ul.factlist li::before {
+  content: ""; position: absolute; left: 0; top: 0.55em; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--ink-3);
+}
+.routing-line { font-size: 0.85rem; color: var(--ink-3); margin-bottom: 16px; }
+.routing-line .mono { color: var(--ink-2); }
+
+.step { border-left: 2px solid var(--border); padding-left: 18px; margin-bottom: 18px; position: relative; }
+.step:last-child { margin-bottom: 0; }
+.step::before {
+  content: ""; position: absolute; left: -6px; top: 2px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--accent); border: 2px solid var(--surface);
+}
+.step-tool { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; font-weight: 500; color: var(--accent-ink); margin-bottom: 4px; }
+.step-reasoning { font-size: 0.88rem; color: var(--ink-2); font-style: italic; margin-bottom: 8px; line-height: 1.5; }
+.step-findings { margin: 0; padding-left: 0; list-style: none; }
+.step-findings li {
+  font-size: 0.88rem; color: var(--ink-2); margin-bottom: 5px; padding-left: 16px; position: relative;
+}
+.step-findings li::before { content: "\2192"; position: absolute; left: 0; color: var(--ink-3); }
+
+details.rawrecord { margin-top: 8px; }
+details.rawrecord summary {
+  cursor: pointer; font-size: 0.82rem; color: var(--ink-3); font-weight: 600;
+  padding: 8px 0; list-style: none; display: flex; align-items: center; gap: 6px;
+}
+details.rawrecord summary::-webkit-details-marker { display: none; }
+details.rawrecord summary::before { content: "\25B8"; transition: transform 0.15s; font-size: 0.7rem; }
+details.rawrecord[open] summary::before { transform: rotate(90deg); }
+.raw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px 20px; padding-top: 8px; }
+.raw-kv { font-size: 0.82rem; display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px dashed var(--border-soft); }
+.raw-kv .k { color: var(--ink-3); }
+.raw-kv .v { font-family: "IBM Plex Mono", monospace; color: var(--ink-2); text-align: right; }
+
+.auto-note {
+  border-radius: 10px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.55;
+  background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--border-soft);
+}
+.gt-strip { display:flex; gap:8px; align-items:center; font-size: 0.8rem; color: var(--ink-3); margin-top: 16px; }
+.gt-strip .v { color: var(--ink-2); font-weight: 600; }
+
+footer.appfoot { text-align: center; color: var(--ink-3); font-size: 0.78rem; padding: 26px 24px 40px; }
+footer.appfoot a { color: var(--accent); }
+
+@media (max-width: 820px) {
+  .app { flex-direction: column; height: auto; }
+  .rail { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 260px; }
+  .detail-inner { padding: 28px 18px 60px; }
+}
 </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="hero-inner">
-    <h1>Agentic Fraud Detection System</h1>
-    <p class="tagline">A demo system for reasoning about when and how to apply an LLM agent to fraud
-    review -- not everything needs one. A deterministic raw-evidence score and policy layer auto-clears
-    or flags the vast majority of traffic; only genuinely ambiguous cases reach an LLM agent equipped
-    with a small set of tools (account history, device reputation, email risk, address distance) that
-    it calls selectively, with visible reasoning for each call.</p>
-    <p class="tagline muted">All data below is synthetic, generated for this project. Case studies are
-    real rows run through the actual agent (not scripted) -- shown alongside the story each one was
-    curated to represent.</p>
+<div class="topbar">
+  <div>
+    <h1>Fraud Case Review</h1>
+    <div class="subtitle">Agentic Fraud Detection System &middot; curated case gallery</div>
   </div>
-</header>
-<nav class="casenav"><div class="casenav-inner"><a href="#T26574" class="navlink">Obvious ATO -- should skip the agent entirely</a>
-<a href="#T51839" class="navlink">Looks like ATO, resolved by a trusted device</a>
-<a href="#T30146" class="navlink">Looks like ATO, resolved by a trusted shipping address</a>
-<a href="#T30676" class="navlink">Clean transaction, flagged only because of the dollar amount</a>
-<a href="#T8942" class="navlink">Genuinely mixed evidence -- escalated to a human</a>
-<a href="#T7917" class="navlink">Fresh card, new email, and a shipping address 1,800 miles away</a>
-<a href="#T43087" class="navlink">Fresh card + high-risk category, resolved by an old, low-risk email</a>
-<a href="#T15996_auto_approve" class="navlink">The boring, correct case</a>
-<a href="#T11117_auto_approve" class="navlink">&quot;Friendly fraud&quot; that no system could have caught</a></div></nav>
-<main>
+  <div class="topbar-right">A deterministic score + policy layer clears most traffic automatically. Only genuinely ambiguous cases reach an LLM agent with tools &mdash; these are real runs of that agent, on synthetic data.</div>
+</div>
 
-    <section class="case" id="T26574">
-      <div class="case-header">
-        <span class="bucket-tag">Account takeover</span>
-        <h3>Obvious ATO -- should skip the agent entirely</h3>
-        <span class="badge reject">✕ Reject &middot; 87%</span>
-      </div>
-      <p class="story">A long-tenured account goes dormant, reactivates with a same-day password change, then sends a large sum to a brand-new recipient at midnight from an unrecognized device. The evidence pattern is thick enough to ask: should this even need an LLM call?</p>
-      <div class="routed">Routed because: <code>policy_and_tier</code> &middot; raw-evidence tier: <strong>high</strong> (6 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Password changed same day as transaction (Days_Since_Password_Change=0), directly following 82-day dormancy</li><li>Device unrecognized -- does not match account&#x27;s known trusted device (DEV-003321)</li><li>Location unrecognized -- Miami vs known Austin location</li><li>Device flagged by third-party intel as jailbroken with High threat rating</li><li>Transaction amount ($1077.68) is ~6.5x the account&#x27;s typical transaction amount (~$166) and nearly half the account balance</li><li>New, never-before-seen recipient</li><li>Unusual hour (midnight)</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>No prior fraudulent transactions on file (though uninformative for ATO risk)</li><li>Thin history means baseline is not fully established, but the trusted device/location data that does exist directly conflicts with this transaction&#x27;s device/location</li></ul>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>This is a textbook account-takeover pattern: a password reset immediately after months of dormancy, a transaction from an unrecognized, jailbroken/high-threat device in an unrecognized city, sent to a brand-new recipient for an amount far exceeding the account&#x27;s typical spend. Unlike the generic &#x27;thin history&#x27; caveat, here we have concrete conflicting evidence -- the account DOES have an established trusted device/location baseline (DEV-003321/Austin), and this transaction matches neither, which is a real red flag rather than an absence of data. The combination of these corroborating, largely uncontested signals supports a reject rather than a mere escalation.</p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Send Money</li>
-<li><strong>Amount:</strong> 1077.68</li>
-<li><strong>Account balance before transaction:</strong> 2202.9</li>
-<li><strong>Funding source:</strong> PayPal Balance</li>
-<li><strong>Device ID:</strong> DEV-007526</li>
-<li><strong>Device type:</strong> Mobile</li>
-<li><strong>Email:</strong> user2015309@yahoo.com</li>
-<li><strong>Location:</strong> Miami</li>
-<li><strong>New recipient?:</strong> True</li>
-<li><strong>Account age (days):</strong> 1640</li>
-<li><strong>Days since last activity:</strong> 82</li>
-<li><strong>Days since password change:</strong> 0</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This pattern strongly suggests account takeover (dormancy + same-day password change + new recipient + large transfer at unusual hour). Since account age is 1640 days, checking prior history could establish whether this device/location/behavior matches the genuine owner's baseline.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 4</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 82</li>
-<li><strong>observed_days_span:</strong> 154</li>
-<li><strong>thin_history:</strong> True</li>
-<li><strong>is_current_device_known:</strong> False</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-003321']</li>
-<li><strong>is_current_location_known:</strong> False</li>
-<li><strong>trusted_locations:</strong> ['Austin']</li>
-<li><strong>typical_transaction_amount:</strong> 165.765</li>
-<li><strong>distinct_known_recipients:</strong> 2</li>
-<li><strong>live_transaction_count_last_24h:</strong> 0</li>
-<li><strong>live_declined_count_last_24h:</strong> 0</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T26573', 'Day_Number': 76, 'Hour_of_Day': 18, 'Transaction_Type': 'Send Money', 'Transaction_Amount': 403.63, 'Device_ID': 'DEV-003321', 'IP_Location': 'Austin', 'Transaction_Status': 'Approved'}</li>
-</ul>
-<p><strong>2. <code>device_intel_lookup</code></strong></p>
-<p><em>Device and location don't match the account's known trusted device (DEV-003321) or location (Austin), reinforcing an ATO suspicion — worth checking third-party device reputation since it's unrecognized and other signals (dormancy, password reset, new recipient) point to takeover.</em></p>
-<ul>
-<li><strong>found:</strong> True</li>
-<li><strong>is_jailbroken:</strong> True</li>
-<li><strong>threat_rating:</strong> High</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
+<div class="app">
+  <nav class="rail" id="rail"></nav>
+  <main class="detail" id="detail"></main>
+</div>
 
-    <section class="case" id="T51839">
-      <div class="case-header">
-        <span class="bucket-tag">Account takeover</span>
-        <h3>Looks like ATO, resolved by a trusted device</h3>
-        <span class="badge approve">✓ Approve &middot; 78%</span>
-      </div>
-      <p class="story">Same dormancy + password-change shape as an ATO case -- but the agent checks the account&#x27;s own history and finds the device and destination bank are both the genuine owner&#x27;s, so it approves instead of rejecting on surface pattern alone.</p>
-      <div class="routed">Routed because: <code>tier_only</code> &middot; raw-evidence tier: <strong>high</strong> (4 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Large withdrawal relative to balance (334.90 of 707.96, ~47%)</li><li>62 days of dormancy before this transaction</li><li>Password changed same day as transaction (Days_Since_Password_Change=0)</li><li>Thin observed history (only 4 prior transactions in window) limits baseline confidence</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>Device_ID DEV-006456 matches account&#x27;s known trusted device</li><li>IP_Location Austin matches account&#x27;s known trusted location</li><li>Withdrawal destination bank is well-established (370 days old), not newly added</li><li>Self-transfer to own bank (Counterparty SELF-BANK), not a new third-party recipient</li><li>No declines or velocity spike in last 24h</li></ul>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>Although the dormancy-then-password-change-then-large-withdrawal pattern superficially resembles account takeover, the transaction originates from the account&#x27;s own recognized device and trusted Austin location, and the funds are moving to a long-established (370-day) linked bank account rather than a new recipient -- exactly what a genuine owner reactivating their account would do, and much harder for a remote attacker to replicate. This device/location match directly resolves the ATO concern that prompted routing, so I&#x27;m approving with moderate-high confidence rather than escalating.</p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Withdraw to Bank</li>
-<li><strong>Amount:</strong> 334.9</li>
-<li><strong>Account balance before transaction:</strong> 707.96</li>
-<li><strong>Funding source:</strong> PayPal Balance</li>
-<li><strong>Device ID:</strong> DEV-006456</li>
-<li><strong>Device type:</strong> Tablet</li>
-<li><strong>Email:</strong> user3912694@hotmail.com</li>
-<li><strong>Location:</strong> Austin</li>
-<li><strong>Destination bank age (days):</strong> 370.0</li>
-<li><strong>Account age (days):</strong> 1219</li>
-<li><strong>Days since last activity:</strong> 62</li>
-<li><strong>Days since password change:</strong> 0</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This is a classic account-takeover pattern (dormancy + same-day password change + large withdrawal), so let me check user history to see if this device/location matches the account's real baseline.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 4</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 62</li>
-<li><strong>observed_days_span:</strong> 110</li>
-<li><strong>thin_history:</strong> True</li>
-<li><strong>is_current_device_known:</strong> True</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-006456']</li>
-<li><strong>is_current_location_known:</strong> True</li>
-<li><strong>trusted_locations:</strong> ['Austin']</li>
-<li><strong>typical_transaction_amount:</strong> 131.985</li>
-<li><strong>distinct_known_recipients:</strong> 2</li>
-<li><strong>live_transaction_count_last_24h:</strong> 0</li>
-<li><strong>live_declined_count_last_24h:</strong> 0</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T51838', 'Day_Number': 63, 'Hour_of_Day': 12, 'Transaction_Type': 'Pay for Purchase', 'Transaction_Amount': 150.21, 'Device_ID': 'DEV-006456', 'IP_Location': 'Austin', 'Transaction_Status': 'Approved'}</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
+<footer class="appfoot">Portfolio project &middot; all data synthetic &middot; <a href="https://github.com/mg01-git/agentic-fraud-detection" target="_blank" rel="noopener">source on GitHub</a></footer>
 
-    <section class="case" id="T30146">
-      <div class="case-header">
-        <span class="bucket-tag">Account takeover</span>
-        <h3>Looks like ATO, resolved by a trusted shipping address</h3>
-        <span class="badge approve">✓ Approve &middot; 85%</span>
-      </div>
-      <p class="story">Same base pattern, but this time it&#x27;s a high-risk-category purchase instead of a withdrawal. The agent confirms billing and shipping addresses actually match via a real distance check -- not just eyeballing two city names -- before approving.</p>
-      <div class="routed">Routed because: <code>tier_only</code> &middot; raw-evidence tier: <strong>medium</strong> (3 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Dormant account reactivation (76 days since last activity)</li><li>Password changed same day as transaction (Days_Since_Password_Change=0)</li><li>Unusual hour (4am)</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>Device_ID (DEV-003777) is on the account&#x27;s known/trusted device list</li><li>IP location (Austin) matches trusted location baseline</li><li>Billing and shipping addresses both Austin, same_city distance -- no shipping mismatch</li><li>Not a new recipient/counterparty</li><li>No declines or unusual velocity in last 24h</li><li>Transaction amount ($157.79) modest relative to account balance and not wildly above typical spend</li></ul>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>Although the raw signals (dormancy, password change, odd hour) look like classic ATO setup, the history lookup confirms this transaction came from a trusted, previously-used device and a trusted location (Austin), and billing/shipping match exactly with no distance red flag. Password change plus dormancy would be concerning if paired with an unrecognized device or new shipping address, but here the device/location baseline directly contradicts a takeover narrative. Given no declines, no new recipient, and device/location consistency with the account&#x27;s own established pattern, this is predominantly legitimate.</p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Pay for Purchase</li>
-<li><strong>Amount:</strong> 157.79</li>
-<li><strong>Account balance before transaction:</strong> 1327.35</li>
-<li><strong>Purchase category:</strong> Electronics</li>
-<li><strong>Funding source:</strong> Linked Debit Card</li>
-<li><strong>Funding instrument age (days):</strong> 594.0</li>
-<li><strong>Billing location:</strong> Austin</li>
-<li><strong>Shipping location:</strong> Austin</li>
-<li><strong>Device ID:</strong> DEV-003777</li>
-<li><strong>Device type:</strong> Tablet</li>
-<li><strong>Email:</strong> user2287340@gmail.com</li>
-<li><strong>Location:</strong> Austin</li>
-<li><strong>New recipient?:</strong> False</li>
-<li><strong>Account age (days):</strong> 1599</li>
-<li><strong>Days since last activity:</strong> 76</li>
-<li><strong>Days since password change:</strong> 0</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This looks like a potential account-takeover pattern (dormant reactivation + password change + unusual hour), so I'll check prior history to establish a baseline for device/location recognition. I'll also check billing/shipping distance since this is a Pay for Purchase in Electronics with both locations populated.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 4</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 106</li>
-<li><strong>observed_days_span:</strong> 111</li>
-<li><strong>thin_history:</strong> True</li>
-<li><strong>is_current_device_known:</strong> True</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-003777', 'DEV-003778']</li>
-<li><strong>is_current_location_known:</strong> True</li>
-<li><strong>trusted_locations:</strong> ['Austin']</li>
-<li><strong>typical_transaction_amount:</strong> 57.425</li>
-<li><strong>distinct_known_recipients:</strong> 1</li>
-<li><strong>live_transaction_count_last_24h:</strong> 0</li>
-<li><strong>live_declined_count_last_24h:</strong> 0</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T30145', 'Day_Number': 38, 'Hour_of_Day': 23, 'Transaction_Type': 'Receive Money', 'Transaction_Amount': 81.05, 'Device_ID': 'DEV-003778', 'IP_Location': 'Austin', 'Transaction_Status': 'Approved'}</li>
-</ul>
-<p><strong>2. <code>address_distance_lookup</code></strong></p>
-<p><em>This looks like a potential account-takeover pattern (dormant reactivation + password change + unusual hour), so I'll check prior history to establish a baseline for device/location recognition. I'll also check billing/shipping distance since this is a Pay for Purchase in Electronics with both locations populated.</em></p>
-<ul>
-<li><strong>distance_bucket:</strong> same_city</li>
-<li><strong>billing_region:</strong> South</li>
-<li><strong>shipping_region:</strong> South</li>
-<li><strong>explanation:</strong> Billing and shipping are both Austin -- no distance signal.</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
+<script>
+const CASES = [
+  {
+    id: "T26574", bucket: "Account takeover", title: "Obvious ATO — should this skip the agent entirely?",
+    story: "A long-tenured account goes dormant, reactivates with a same-day password change, then sends a large sum to a brand-new recipient at midnight from an unrecognized device. The evidence is thick enough to ask whether this needed an LLM call at all.",
+    routing: { tier: "High", policy: true, reasonText: "policy + tier" },
+    verdict: "reject", confidence: 87,
+    flagged: [
+      "Password changed the same day as this transaction, directly following an 82-day dormancy",
+      "Amount ($1,077.68) is ~6.5x this account's typical transaction, and nearly half its balance",
+      "Sent to a brand-new recipient, never seen on this account before",
+      "Unusual hour — midnight",
+      "Policy triggered — amount clears the mandatory-review threshold"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Dormancy + same-day password change + new recipient + large transfer at an unusual hour strongly suggests account takeover. Account is 1,640 days old, so checking prior history could establish whether this matches the genuine owner's baseline.",
+        findings: ["Device is unrecognized — does not match the account's known device (DEV-003321)", "Location is unrecognized — Miami vs. the account's known Austin"] },
+      { tool: "device_intel_lookup", reasoning: "Device and location don't match the account's baseline, reinforcing ATO suspicion — worth an independent third-party reputation check.",
+        findings: ["Device is jailbroken", "Third-party threat rating: High"] }
+    ],
+    verdictBullets: [
+      "Password reset immediately after months of dormancy is a textbook ATO signature",
+      "Device and location don't just look unfamiliar — they actively conflict with a real, established baseline (not a thin-history uninformative case)",
+      "Independent device-reputation check corroborates rather than contradicts",
+      "Signals are corroborating and largely uncontested — reject rather than a softer escalate"
+    ],
+    raw: { "Type": "Send Money", "Amount": "$1,077.68", "Balance before": "$2,202.90", "Device": "DEV-007526 (Mobile)", "Location": "Miami", "New recipient": "Yes", "Account age": "1,640 days", "Days since last activity": "82", "Days since password change": "0" }
+  },
+  {
+    id: "T51839", bucket: "Account takeover", title: "Looks like ATO — resolved by a trusted device",
+    story: "Same dormancy-then-password-change shape as a takeover — but the agent checks the account's own history and finds the device and destination bank both belong to the genuine owner.",
+    routing: { tier: "High", policy: false, reasonText: "tier only" },
+    verdict: "approve", confidence: 78,
+    flagged: [
+      "Large withdrawal relative to balance ($334.90 of $707.96, ~47%)",
+      "62 days of dormancy before this transaction",
+      "Password changed the same day as the transaction"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Classic-looking ATO pattern (dormancy + same-day password change + large withdrawal) — checking whether this device/location matches the account's real baseline.",
+        findings: ["Device matches the account's known trusted device", "Location (Austin) matches the account's known trusted location", "Destination bank is well-established — 370 days old, not newly added", "Self-transfer to the account's own bank, not a new third-party recipient", "No declines or velocity spike in the last 24h"] }
+    ],
+    verdictBullets: [
+      "Dormancy + password change + large withdrawal superficially resembles takeover",
+      "But the transaction comes from the account's own recognized device and trusted location — hard for a remote attacker to replicate",
+      "Funds move to a long-established linked bank account, not a new recipient",
+      "Device/location match directly resolves the concern that triggered routing — approve, not escalate"
+    ],
+    raw: { "Type": "Withdraw to Bank", "Amount": "$334.90", "Balance before": "$707.96", "Device": "DEV-006456 (Tablet)", "Location": "Austin", "Destination bank age": "370 days", "Account age": "1,219 days", "Days since last activity": "62", "Days since password change": "0" }
+  },
+  {
+    id: "T30146", bucket: "Account takeover", title: "Looks like ATO — resolved by a trusted shipping address",
+    story: "Same base pattern, but this time it's a high-risk-category purchase instead of a withdrawal. The agent confirms billing and shipping actually match via a real distance check, not by eyeballing two city names.",
+    routing: { tier: "Medium", policy: false, reasonText: "tier only" },
+    verdict: "approve", confidence: 85,
+    flagged: [
+      "Dormant reactivation — 76 days since last activity",
+      "Password changed the same day as the transaction",
+      "Unusual hour — 4am",
+      "Electronics purchase (a high-risk, physically-shipped category)"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Potential ATO pattern (dormant reactivation + password change + unusual hour) — checking prior history for a device/location baseline. Will also check billing/shipping distance since this is a Pay for Purchase in Electronics with both locations populated.",
+        findings: ["Device matches the account's known trusted device", "Location (Austin) matches the account's known trusted location"] },
+      { tool: "address_distance_lookup", reasoning: "Distance check runs regardless of whether billing and shipping look identical on the raw record — a real check is worth the confirmation.",
+        findings: ["Billing and shipping are both Austin — same city, no mismatch"] }
+    ],
+    verdictBullets: [
+      "Raw signals (dormancy, password change, odd hour) look like classic ATO setup",
+      "History lookup confirms a trusted, previously-used device and location",
+      "Billing and shipping match exactly, confirmed by distance check — no diversion risk",
+      "No new recipient, no declines — predominantly legitimate, approve"
+    ],
+    raw: { "Type": "Pay for Purchase", "Amount": "$157.79", "Category": "Electronics", "Funding source": "Linked Debit Card (594 days old)", "Billing / Shipping": "Austin / Austin", "Device": "DEV-003777 (Tablet)", "Account age": "1,599 days", "Days since last activity": "76", "Days since password change": "0" }
+  },
+  {
+    id: "T30676", bucket: "Policy", title: "Clean transaction, flagged only for the dollar amount",
+    story: "Nothing about this transaction looks risky — it only reaches the agent because a mandatory policy rule requires review above a dollar threshold. The agent reads that correctly as a safety net, not as evidence of risk.",
+    routing: { tier: "Low", policy: true, reasonText: "policy only" },
+    verdict: "approve", confidence: 85,
+    flagged: [
+      "Amount ($1,974.19) is ~8x this account's typical transaction, ~59% of current balance",
+      "Policy triggered — amount clears the mandatory enhanced-review threshold"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Large-value Send Money (~59% of balance) to an existing recipient on a well-established account — checking whether the device/amount/recipient pattern matches this account's normal behavior.",
+        findings: ["Device matches the account's known trusted device", "Location (San Francisco) matches the account's known trusted location", "Recipient is not new — the account's single known counterparty", "No declines or velocity spike in the last 24h", "No recent password change (210 days)"] }
+    ],
+    verdictBullets: [
+      "Dollar amount alone triggered mandatory review — that's what the policy rule is for",
+      "Everything else matches the genuine owner's established pattern: known device, known location, known recipient",
+      "No evidence of takeover (device/location match) or stolen instrument (no declines, no new funding source)",
+      "Size alone shouldn't override an otherwise clean behavioral match — approve with high confidence"
+    ],
+    raw: { "Type": "Send Money", "Amount": "$1,974.19", "Balance before": "$3,340.91", "Funding source": "Linked Bank Account (496 days)", "Device": "DEV-003843 (Mobile)", "Location": "San Francisco", "Account age": "1,725 days", "Days since password change": "210" }
+  },
+  {
+    id: "T8942", bucket: "Stolen funding instrument", title: "Genuinely mixed evidence — escalated to a human",
+    story: "A freshly-linked card and a high-risk category point toward a stolen instrument, but device, location, and recipient all check out as the account's own. The agent doesn't force a verdict either way.",
+    routing: { tier: "Medium", policy: false, reasonText: "tier only" },
+    verdict: "escalate", confidence: 55,
+    flagged: [
+      "Funding instrument (credit card) linked only 6 days ago",
+      "High-risk Gift Cards category — easily liquidated, a common cash-out vector for a stolen card",
+      "This transaction itself was declined by the issuer"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Potential stolen-funding-instrument case (fresh 6-day card, high-risk category, this transaction declined) — pulling history to check decline velocity and device baseline.",
+        findings: ["Device and location both match this account's established trusted baseline", "Recipient is a known counterparty, not new", "Amount is close to this user's typical spend", "No account-takeover markers — no password change, no new device", "This is the second consecutive decline within the same hour — a card-testing signature, only visible by pulling the prior transaction"] },
+      { tool: "email_risk_lookup", reasoning: "Profile leans stolen-funding-instrument (device/location trusted, but fresh instrument + high-risk category + repeated declines) — checking for independent evidence via the account email.",
+        findings: ["Rated Medium risk by the third-party lookup, 33 days old"] }
+    ],
+    verdictBullets: [
+      "Device/location evidence strongly indicates the genuine owner — rules out classic ATO",
+      "That doesn't clear the funding instrument itself — the owner can still be testing or unknowingly using a stolen card",
+      "Medium-risk email doesn't resolve it either way",
+      "Two tool calls narrowed the ambiguity but didn't resolve it — escalate rather than approve or reject"
+    ],
+    raw: { "Type": "Pay for Purchase", "Amount": "$161.82", "Category": "Gift Cards", "Funding source": "Linked Credit Card (6 days old)", "Device / Location": "DEV-001103 (Desktop) / Boston", "Account age": "1,323 days", "Days since last activity": "0", "Status": "Declined" }
+  },
+  {
+    id: "T7917", bucket: "Stolen funding instrument", title: "Fresh card, new email, shipping 1,800 miles from billing",
+    story: "A freshly-linked funding instrument, a very young/high-risk email despite an old account, and a shipping address in a different region than billing — all independently corroborating. The agent rejects with real confidence.",
+    routing: { tier: "High", policy: true, reasonText: "policy + tier" },
+    verdict: "reject", confidence: 80,
+    flagged: [
+      "Funding instrument linked only 11 days ago, used for a $566.52 Electronics purchase",
+      "This transaction itself was declined",
+      "Policy triggered — amount clears the mandatory-review threshold"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Potential stolen-funding-instrument case (fresh instrument + high-risk category + this decline) — checking history for a baseline and running the billing/shipping distance check.",
+        findings: ["Device and location both match the account's trusted baseline", "Recipient is not new — a repeat counterparty", "A near-identical amount was declined about an hour earlier from the same device — a second consecutive decline"] },
+      { tool: "address_distance_lookup", reasoning: "Distance check runs for any Pay for Purchase with both addresses populated.",
+        findings: ["Shipping (San Francisco) is cross-region from billing (Chicago) — consistent with a drop-address cash-out pattern"] },
+      { tool: "email_risk_lookup", reasoning: "Case leans stolen-funding-instrument (trusted device/location, but fresh instrument, high-risk category, cross-region mismatch, repeated declines) — checking for independent evidence via email.",
+        findings: ["Rated High risk, only 23 days old — despite the account itself being 614 days old, suggesting a recently swapped or compromised email"] }
+    ],
+    verdictBullets: [
+      "Fresh instrument + high-risk category + cross-region shipping mismatch + repeated declines + a newly-created high-risk email — not one flag, several independent signals pointing the same way",
+      "Trusted device/location only rules out a device-swap-style takeover — it doesn't offset the fresh-instrument-plus-fraud-pattern signals, which dominate here",
+      "Evidence is largely one-sided toward fraud, not genuinely mixed — reject rather than escalate"
+    ],
+    raw: { "Type": "Pay for Purchase", "Amount": "$566.52", "Category": "Electronics", "Funding source": "Linked Bank Account (11 days old)", "Billing / Shipping": "Chicago / San Francisco", "Device": "DEV-000976 (Tablet)", "Account age": "614 days", "Status": "Declined" }
+  },
+  {
+    id: "T43087", bucket: "Stolen funding instrument", title: "Fresh card + high-risk category, resolved by an old, low-risk email",
+    story: "The raw signals look like a stolen card being tested — but the email tied to the purchase is over three years old with a low third-party risk rating, weighed as real evidence the genuine owner just linked a new card.",
+    routing: { tier: "High", policy: false, reasonText: "tier only" },
+    verdict: "escalate", confidence: 55,
+    flagged: [
+      "Funding instrument (debit card) linked only 5 days ago",
+      "Gift Cards purchase — a common cash-out vector for stolen instruments",
+      "Unusual hour — midnight"
+    ],
+    steps: [
+      { tool: "lookup_user_history", reasoning: "Looks like stolen-funding-instrument (fresh 5-day debit card funding a gift-card purchase at midnight) rather than ATO — but the account is well-established (196 days), so checking its own history could confirm or contradict this.",
+        findings: ["Device matches the account's known trusted device", "Location (Miami) matches the account's known trusted location", "No declines or velocity spike in the last 24h", "Amount is below this account's typical spend", "Recipient is not new"] },
+      { tool: "email_risk_lookup", reasoning: "Device/location argue against both ATO and card-testing — but the routing flagged newly-linked instrument + high-risk category specifically, so checking email risk for independent confirmation.",
+        findings: ["Rated Low risk, 1,259 days old — a long-established email"] }
+    ],
+    verdictBullets: [
+      "Trusted device, matching location, and an aged low-risk email all argue for the genuine owner",
+      "But the account also carries prior fraud history, and this transaction matches a classic stolen-instrument pattern — fresh funding source used immediately for gift cards at an odd hour",
+      "That pattern can occur even from a genuine device if the payment method itself was compromised",
+      "Real tension between strong identity signals and a concrete risk pattern — escalate rather than auto-decide"
+    ],
+    raw: { "Type": "Pay for Purchase", "Amount": "$255.42", "Category": "Gift Cards", "Funding source": "Linked Debit Card (5 days old)", "Location": "Miami", "Device": "DEV-005340 (Mobile)", "Account age": "196 days", "Days since last activity": "19" }
+  },
+  {
+    id: "T15996", bucket: "Auto-approve", title: "The boring, correct case", auto: true,
+    story: "No signals, nothing ambiguous — this transaction never reaches the agent at all. Most real traffic looks like this, and the system is designed to leave it alone.",
+    routing: { tier: "Low", policy: false, reasonText: "clear" },
+    verdict: "approve", confidence: null,
+    autoNote: "Routed straight to auto-approve — zero raw-evidence signals matched, policy not triggered. $412.49 Send Money to an established recipient, from a known device, no dormancy, no unusual hour. This case never reached the agent; it's included to show the overwhelming majority baseline the system is built to leave alone.",
+    groundTruth: "Legitimate",
+    raw: { "Type": "Send Money", "Amount": "$412.49", "Balance before": "$1,324.36", "Device": "Desktop", "Location": "Boston", "New recipient": "No", "Account age": "602 days", "Days since last activity": "13" }
+  },
+  {
+    id: "T11117", bucket: "Auto-approve", title: "“Friendly fraud” no system could have caught", auto: true,
+    story: "An everyday-looking purchase, auto-approved — and later disputed as fraud anyway. There was zero transaction-time signal to find. Included deliberately, to be honest about the system's real ceiling.",
+    routing: { tier: "Low", policy: false, reasonText: "clear" },
+    verdict: "approve", confidence: null,
+    autoNote: "$112.40 Groceries purchase, billing matches shipping, an established recipient, no dormancy, zero raw-evidence signals — auto-approved. It later turned out to be confirmed fraud via a customer dispute (chargeback). Even the data-generation process's own internal ground-truth score rated this low-risk at generation time: there was genuinely nothing to catch. Kept in the set on purpose, as an honest limit on what any version of this system can promise.",
+    groundTruth: "Confirmed fraud (later chargeback) — no transaction-time signal existed",
+    raw: { "Type": "Pay for Purchase", "Amount": "$112.40", "Category": "Groceries", "Billing / Shipping": "Houston / Houston", "New recipient": "No", "Account age": "909 days", "Days since last activity": "17" }
+  }
+];
 
-    <section class="case" id="T30676">
-      <div class="case-header">
-        <span class="bucket-tag">Policy</span>
-        <h3>Clean transaction, flagged only because of the dollar amount</h3>
-        <span class="badge approve">✓ Approve &middot; 85%</span>
-      </div>
-      <p class="story">Nothing about this transaction looks risky -- it only reaches the agent because a mandatory policy rule requires review above a dollar threshold. The agent correctly reads the policy trigger as a safety net, not as evidence of risk.</p>
-      <div class="routed">Routed because: <code>policy_only</code> &middot; raw-evidence tier: <strong>low</strong> (2 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Transaction amount ($1974.19) is ~8x the account&#x27;s typical transaction amount and ~59% of current balance</li><li>Amount meets mandatory enhanced-review policy threshold</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>Device (DEV-003843) matches account&#x27;s trusted/known device</li><li>IP location (San Francisco) matches account&#x27;s trusted location</li><li>Recipient (U1144) is not new -- account&#x27;s single known/distinct recipient, consistent with prior send pattern</li><li>No declines or unusual velocity in last 24h</li><li>No password change or credential reset recently (210 days since last change)</li><li>Account has established 144-day observation history with no red flags in this window</li></ul>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>Although the dollar amount is unusually large relative to this user&#x27;s typical transaction size and balance (triggering mandatory review), the transaction otherwise matches the genuine owner&#x27;s established pattern: known device, known location, known recipient, no declines, and no recent security-sensitive changes like a password reset. There is no evidence of account takeover (device/location match) or stolen instrument (no declines, no new funding source), so the size alone is not enough to override the otherwise clean behavioral match -- approving with high confidence.</p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Send Money</li>
-<li><strong>Amount:</strong> 1974.19</li>
-<li><strong>Account balance before transaction:</strong> 3340.91</li>
-<li><strong>Funding source:</strong> Linked Bank Account</li>
-<li><strong>Funding instrument age (days):</strong> 496.0</li>
-<li><strong>Device ID:</strong> DEV-003843</li>
-<li><strong>Device type:</strong> Mobile</li>
-<li><strong>Email:</strong> user2324813@gmail.com</li>
-<li><strong>Location:</strong> San Francisco</li>
-<li><strong>New recipient?:</strong> False</li>
-<li><strong>Account age (days):</strong> 1725</li>
-<li><strong>Days since last activity:</strong> 6</li>
-<li><strong>Days since password change:</strong> 210</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This is a large-value Send Money transaction (~59% of balance) to an existing recipient on a well-established account; let me check prior history to see if this device/amount/recipient pattern matches the account's normal behavior.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 10</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 117</li>
-<li><strong>observed_days_span:</strong> 144</li>
-<li><strong>thin_history:</strong> False</li>
-<li><strong>is_current_device_known:</strong> True</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-003843']</li>
-<li><strong>is_current_location_known:</strong> True</li>
-<li><strong>trusted_locations:</strong> ['San Francisco']</li>
-<li><strong>typical_transaction_amount:</strong> 239.235</li>
-<li><strong>distinct_known_recipients:</strong> 1</li>
-<li><strong>live_transaction_count_last_24h:</strong> 0</li>
-<li><strong>live_declined_count_last_24h:</strong> 0</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T30675', 'Day_Number': 158, 'Hour_of_Day': 11, 'Transaction_Type': 'Withdraw to Bank', 'Transaction_Amount': 308.86, 'Device_ID': 'DEV-003843', 'IP_Location': 'San Francisco', 'Transaction_Status': 'Approved'}</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
+const VERDICT_LABEL = { approve: "Approve", reject: "Reject", escalate: "Escalate" };
 
-    <section class="case" id="T8942">
-      <div class="case-header">
-        <span class="bucket-tag">Stolen funding instrument</span>
-        <h3>Genuinely mixed evidence -- escalated to a human</h3>
-        <span class="badge escalate">▲ Escalate &middot; 55%</span>
-      </div>
-      <p class="story">A freshly-linked card and a high-risk purchase category point toward a stolen instrument, but the device, location, and recipient all check out as the account&#x27;s own. The agent doesn&#x27;t force a verdict either way -- it escalates.</p>
-      <div class="routed">Routed because: <code>tier_only</code> &middot; raw-evidence tier: <strong>medium</strong> (3 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Funding instrument linked only 6 days ago</li><li>High-risk Gift Cards category (easily liquidated)</li><li>Two consecutive declines within the same hour on this fresh card (card-testing pattern)</li><li>Account email rated Medium risk by third-party lookup</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>Device and IP location both match this account&#x27;s established trusted baseline (own device, own city)</li><li>Transaction amount ($161.82) is close to the account&#x27;s typical amount (~$188.57)</li><li>Recipient is not new -- one of 4 known counterparties</li><li>No indication of account takeover markers (no password change, no new device)</li></ul>
+function renderRail() {
+  const rail = document.getElementById("rail");
+  const groups = {};
+  CASES.forEach(c => { (groups[c.bucket] = groups[c.bucket] || []).push(c); });
+  let html = "";
+  Object.keys(groups).forEach(bucket => {
+    html += `<div class="rail-group-label">${bucket}</div>`;
+    groups[bucket].forEach(c => {
+      const chipClass = c.auto ? "auto" : c.verdict;
+      const chipLabel = c.auto ? "Auto" : VERDICT_LABEL[c.verdict];
+      html += `<button class="rail-item" data-id="${c.id}" onclick="selectCase('${c.id}')">
+        <div class="ri-top">
+          <span class="ri-title">${c.title}</span>
+          <span class="chip ${chipClass}">${chipLabel}</span>
         </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>The device/location evidence strongly indicates this is the genuine account owner (not ATO), which conflicts with the stolen-funding-instrument signals (brand-new card, high-risk gift card category, back-to-back declines resembling card testing). Because the trusted-device/location match undercuts the takeover hypothesis but doesn&#x27;t rule out the owner using or testing a compromised/stolen card, this needs human review of the funding instrument itself rather than an automated approve/reject.</p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Pay for Purchase</li>
-<li><strong>Amount:</strong> 161.82</li>
-<li><strong>Account balance before transaction:</strong> 708.74</li>
-<li><strong>Purchase category:</strong> Gift Cards</li>
-<li><strong>Funding source:</strong> Linked Credit Card</li>
-<li><strong>Funding instrument age (days):</strong> 6.0</li>
-<li><strong>Billing location:</strong> Boston</li>
-<li><strong>Device ID:</strong> DEV-001103</li>
-<li><strong>Device type:</strong> Desktop</li>
-<li><strong>Email:</strong> user673425@yahoo.com</li>
-<li><strong>Location:</strong> Boston</li>
-<li><strong>New recipient?:</strong> False</li>
-<li><strong>Account age (days):</strong> 1323</li>
-<li><strong>Days since last activity:</strong> 0</li>
-<li><strong>Days since password change:</strong> 99</li>
-<li><strong>Status:</strong> Declined</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This looks like a potential stolen-funding-instrument case (fresh 6-day-old linked card, high-risk Gift Cards category, declined transaction), so I'll pull the account's own history to check decline velocity and device recognition baseline.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 8</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 95</li>
-<li><strong>observed_days_span:</strong> 56</li>
-<li><strong>thin_history:</strong> False</li>
-<li><strong>is_current_device_known:</strong> True</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-001103']</li>
-<li><strong>is_current_location_known:</strong> True</li>
-<li><strong>trusted_locations:</strong> ['Boston']</li>
-<li><strong>typical_transaction_amount:</strong> 188.565</li>
-<li><strong>distinct_known_recipients:</strong> 4</li>
-<li><strong>live_transaction_count_last_24h:</strong> 1</li>
-<li><strong>live_declined_count_last_24h:</strong> 1</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T8941', 'Day_Number': 68, 'Hour_of_Day': 14, 'Transaction_Type': 'Pay for Purchase', 'Transaction_Amount': 194.41, 'Device_ID': 'DEV-001103', 'IP_Location': 'Boston', 'Transaction_Status': 'Declined'}</li>
-</ul>
-<p><strong>2. <code>email_risk_lookup</code></strong></p>
-<p><em>Given the fresh funding instrument (6 days old), high-risk Gift Cards category, and repeated declines, this profile leans toward stolen-funding-instrument rather than account takeover (device/location match the account's own trusted baseline). I'll check email risk to see if there's independent evidence of a compromised or suspicious account tied to funding instrument fraud.</em></p>
-<ul>
-<li><strong>found:</strong> True</li>
-<li><strong>email_age_days:</strong> 33</li>
-<li><strong>risk_rating:</strong> Medium</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
+        <div class="ri-id mono">${c.id}</div>
+      </button>`;
+    });
+  });
+  rail.innerHTML = html;
+}
 
-    <section class="case" id="T7917">
-      <div class="case-header">
-        <span class="bucket-tag">Stolen funding instrument</span>
-        <h3>Fresh card, new email, and a shipping address 1,800 miles away</h3>
-        <span class="badge reject">✕ Reject &middot; 80%</span>
-      </div>
-      <p class="story">A freshly-linked funding instrument, a very young/high-risk email despite an old account, and a shipping address in a different region than billing -- all independently corroborating. The agent rejects with high confidence.</p>
-      <div class="routed">Routed because: <code>policy_and_tier</code> &middot; raw-evidence tier: <strong>high</strong> (5 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Funding instrument linked only 11 days ago, used for a $566.52 Electronics purchase (classic high-risk category + fresh instrument combo)</li><li>Shipping address (San Francisco) is cross-region from billing (Chicago) -- confirmed via distance check, consistent with a drop-address cash-out pattern</li><li>Two consecutive declined transactions within the last 24h (this one and a $577.45 attempt an hour earlier), suggesting card-testing/probing of the funding instrument</li><li>Account email is only 23 days old and rated High risk by third-party lookup, despite the account itself being 614 days old -- suggests a recently swapped/compromised email tied to an established, well-funded account</li><li>Account has 2 prior fraudulent transactions on record</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>Device (DEV-000976) and IP location (Chicago) match the account&#x27;s trusted device/location baseline, reducing likelihood of classic device-takeover</li><li>Recipient is not new (repeat counterparty)</li></ul>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>The combination of a brand-new funding instrument, a high-risk purchase category, a cross-region shipping/billing mismatch, back-to-back declines, and a newly-created high-risk email attached to an old account together form a strong, coherent stolen-funding-instrument pattern -- this is not a single ambiguous flag but multiple independent signals all pointing the same direction. The known device/location only rules out a device-swap style takeover; it does not offset the fresh-instrument-plus-fraud-pattern signals, which are the dominant risk here. Given the transaction is already declined and the evidence is largely one-sided toward fraud rather than genuinely mixed, reject is warranted over escalate.</p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Pay for Purchase</li>
-<li><strong>Amount:</strong> 566.52</li>
-<li><strong>Account balance before transaction:</strong> 967.45</li>
-<li><strong>Purchase category:</strong> Electronics</li>
-<li><strong>Funding source:</strong> Linked Bank Account</li>
-<li><strong>Funding instrument age (days):</strong> 11.0</li>
-<li><strong>Billing location:</strong> Chicago</li>
-<li><strong>Shipping location:</strong> San Francisco</li>
-<li><strong>Device ID:</strong> DEV-000976</li>
-<li><strong>Device type:</strong> Tablet</li>
-<li><strong>Email:</strong> user595830@outlook.com</li>
-<li><strong>Location:</strong> Chicago</li>
-<li><strong>New recipient?:</strong> False</li>
-<li><strong>Account age (days):</strong> 614</li>
-<li><strong>Days since last activity:</strong> 0</li>
-<li><strong>Days since password change:</strong> 106</li>
-<li><strong>Status:</strong> Declined</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This looks like a potential stolen-funding-instrument case (fresh funding instrument + high-risk category + address mismatch), so I'll check the account's own transaction history for a baseline and run the billing/shipping distance check since this is a Pay for Purchase with both locations populated.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 4</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 19</li>
-<li><strong>observed_days_span:</strong> 81</li>
-<li><strong>thin_history:</strong> True</li>
-<li><strong>is_current_device_known:</strong> True</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-000976']</li>
-<li><strong>is_current_location_known:</strong> True</li>
-<li><strong>trusted_locations:</strong> ['Chicago']</li>
-<li><strong>typical_transaction_amount:</strong> 356.805</li>
-<li><strong>distinct_known_recipients:</strong> 1</li>
-<li><strong>live_transaction_count_last_24h:</strong> 1</li>
-<li><strong>live_declined_count_last_24h:</strong> 1</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T7916', 'Day_Number': 84, 'Hour_of_Day': 11, 'Transaction_Type': 'Pay for Purchase', 'Transaction_Amount': 577.45, 'Device_ID': 'DEV-000976', 'IP_Location': 'Chicago', 'Transaction_Status': 'Declined'}</li>
-</ul>
-<p><strong>2. <code>address_distance_lookup</code></strong></p>
-<ul>
-<li><strong>distance_bucket:</strong> cross_region</li>
-<li><strong>billing_region:</strong> Midwest</li>
-<li><strong>shipping_region:</strong> West</li>
-<li><strong>explanation:</strong> Shipping to San Francisco (West) is a different US region than the billing address Chicago (Midwest) -- consistent with a 'drop address' cash-out pattern, not an ordinary reason to ship elsewhere.</li>
-</ul>
-<p><strong>3. <code>email_risk_lookup</code></strong></p>
-<p><em>This case leans toward stolen-funding-instrument rather than account takeover (device and location are trusted, but there's a fresh funding instrument, high-risk category, cross-region shipping mismatch, and repeated declines), so checking email risk to see if the account itself shows signs of compromise for financial fraud purposes.</em></p>
-<ul>
-<li><strong>found:</strong> True</li>
-<li><strong>email_age_days:</strong> 23</li>
-<li><strong>risk_rating:</strong> High</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
+function renderCase(c) {
+  const badgeClass = c.verdict;
+  const badgeLabel = VERDICT_LABEL[c.verdict];
+  let html = `
+    <div class="case-eyebrow"><span class="bucket-tag">${c.bucket}</span></div>
+    <h2 class="case-title">${c.title}</h2>
+    <p class="case-story">${c.story}</p>
+    <div class="routing-line">Routed ${c.auto ? "" : "to agent "}&middot; raw-evidence tier: <span class="mono">${c.routing.tier}</span> &middot; policy triggered: <span class="mono">${c.routing.policy ? "yes" : "no"}</span></div>
+    <div class="verdict-row">
+      <span class="verdict-badge ${badgeClass}">${badgeLabel}</span>
+      ${c.confidence !== null ? `<span class="confidence">confidence <b>${c.confidence}%</b></span>` : ""}
+    </div>
+  `;
 
-    <section class="case" id="T43087">
-      <div class="case-header">
-        <span class="bucket-tag">Stolen funding instrument</span>
-        <h3>Fresh card + high-risk category, resolved by an old, low-risk email</h3>
-        <span class="badge escalate">▲ Escalate &middot; 55%</span>
+  if (c.auto) {
+    html += `
+      <div class="section">
+        <div class="auto-note">${c.autoNote}</div>
+        <div class="gt-strip">Ground truth: <span class="v">${c.groundTruth}</span></div>
       </div>
-      <p class="story">The raw signals look like a stolen card being tested -- but the email tied to the purchase is over three years old with a low third-party risk rating, which the agent weighs as real evidence the genuine owner just linked a new card.</p>
-      <div class="routed">Routed because: <code>tier_only</code> &middot; raw-evidence tier: <strong>high</strong> (4 pts)</div>
-      
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <ul><li>Funding instrument (debit card) linked only 5 days ago</li><li>Purchase category is Gift Cards, a common cash-out vector for stolen payment instruments</li><li>Account has 2 prior fraudulent transactions on record</li><li>Transaction occurs at unusual hour (midnight)</li><li>Combination of fresh instrument + high-risk category is a recognized fraud pattern</li></ul>
-          <h4>Mitigating factors</h4>
-          <ul><li>Device DEV-005340 is a known/trusted device for this account</li><li>IP/billing location (Miami) matches account&#x27;s trusted location</li><li>Email is long-established (1259 days) and rated low risk</li><li>No declined transactions or velocity spike in last 24h</li><li>Transaction amount ($255) is below the account&#x27;s typical amount ($559.90)</li><li>Recipient is not new to this account</li></ul>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p>This case shows real tension: the trusted device, matching location, and aged low-risk email strongly suggest the genuine account owner is transacting, arguing against account takeover. But the account carries 2 prior fraudulent transactions and this specific transaction matches a classic stolen-instrument laundering pattern (funding source added only 5 days ago, used immediately for gift cards at an unusual hour) -- a pattern that can occur even from a genuine device if the owner&#x27;s payment method itself was compromised or if the owner is complicit. Given the conflict between strong identity/access signals and a concrete prior-fraud history plus a textbook risk pattern, this warrants human escalation rather than auto-approval or auto-rejection.</p>
-        </div>
+    `;
+  } else {
+    html += `
+      <div class="section">
+        <div class="section-head"><span class="section-num">01</span><span class="section-title">What made this ambiguous</span></div>
+        <div class="section-sub">Known before any tool was called</div>
+        <div class="card"><ul class="factlist">${c.flagged.map(f => `<li>${f}</li>`).join("")}</ul></div>
       </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Pay for Purchase</li>
-<li><strong>Amount:</strong> 255.42</li>
-<li><strong>Account balance before transaction:</strong> 11362.69</li>
-<li><strong>Purchase category:</strong> Gift Cards</li>
-<li><strong>Funding source:</strong> Linked Debit Card</li>
-<li><strong>Funding instrument age (days):</strong> 5.0</li>
-<li><strong>Billing location:</strong> Miami</li>
-<li><strong>Device ID:</strong> DEV-005340</li>
-<li><strong>Device type:</strong> Mobile</li>
-<li><strong>Email:</strong> user3252611@hotmail.com</li>
-<li><strong>Location:</strong> Miami</li>
-<li><strong>New recipient?:</strong> False</li>
-<li><strong>Account age (days):</strong> 196</li>
-<li><strong>Days since last activity:</strong> 19</li>
-<li><strong>Days since password change:</strong> 64</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div><p><strong>1. <code>lookup_user_history</code></strong></p>
-<p><em>This looks like a potential stolen-funding-instrument case (fresh 5-day-old debit card funding a gift card purchase at midnight) rather than account takeover, but the account is well-established (196 days) so checking its own history could confirm or contradict this pattern.</em></p>
-<ul>
-<li><strong>n_prior_transactions:</strong> 5</li>
-<li><strong>estimated_lifetime_transaction_count:</strong> 12</li>
-<li><strong>observed_days_span:</strong> 28</li>
-<li><strong>thin_history:</strong> False</li>
-<li><strong>is_current_device_known:</strong> True</li>
-<li><strong>trusted_device_ids:</strong> ['DEV-005339', 'DEV-005340']</li>
-<li><strong>is_current_location_known:</strong> True</li>
-<li><strong>trusted_locations:</strong> ['Miami']</li>
-<li><strong>typical_transaction_amount:</strong> 559.9</li>
-<li><strong>distinct_known_recipients:</strong> 2</li>
-<li><strong>live_transaction_count_last_24h:</strong> 0</li>
-<li><strong>live_declined_count_last_24h:</strong> 0</li>
-<li><strong>most_recent_prior_transaction:</strong> {'Transaction_ID': 'T43086', 'Day_Number': 45, 'Hour_of_Day': 20, 'Transaction_Type': 'Pay for Purchase', 'Transaction_Amount': 559.9, 'Device_ID': 'DEV-005340', 'IP_Location': 'Miami', 'Transaction_Status': 'Approved'}</li>
-</ul>
-<p><strong>2. <code>email_risk_lookup</code></strong></p>
-<p><em>The device and location are recognized as the account's own (trusted), and there are no declines or velocity spikes, which argues against both ATO and card-testing patterns. However, the routing flagged newly-linked funding instrument + high-risk category (gift cards) combo specifically, so checking email risk could clarify if this pattern still suggests stolen-instrument risk.</em></p>
-<ul>
-<li><strong>found:</strong> True</li>
-<li><strong>email_age_days:</strong> 1259</li>
-<li><strong>risk_rating:</strong> Low</li>
-</ul></div>
-        </div>
-      </details>
-    </section>
-    
 
-    <section class="case" id="T15996_auto_approve">
-      <div class="case-header">
-        <span class="bucket-tag">Auto-approve</span>
-        <h3>The boring, correct case</h3>
-        <span class="badge approve">? ?</span>
-      </div>
-      <p class="story">No signals, nothing ambiguous -- this transaction never reaches the agent at all. Most real traffic looks like this, and the system is designed to leave it alone.</p>
-      <div class="routed">Routed because: <code>auto_approve</code> &middot; raw-evidence tier: <strong>low</strong> (0 pts)</div>
-      <div class="gt">Ground truth: <strong>Legitimate</strong> (archetype: none)</div>
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <p class="muted">None.</p>
-          <h4>Mitigating factors</h4>
-          <p class="muted">None.</p>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p></p>
+      <div class="section">
+        <div class="section-head"><span class="section-num">02</span><span class="section-title">What the agent checked</span></div>
+        <div class="section-sub">Tools called, its own reasoning, and what it found</div>
+        <div class="card">
+          ${c.steps.map(s => `
+            <div class="step">
+              <div class="step-tool">${s.tool}</div>
+              <div class="step-reasoning">${s.reasoning}</div>
+              <ul class="step-findings">${s.findings.map(f => `<li>${f}</li>`).join("")}</ul>
+            </div>
+          `).join("")}
         </div>
       </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Send Money</li>
-<li><strong>Amount:</strong> $412.49</li>
-<li><strong>Account balance before transaction:</strong> $1,324.36</li>
-<li><strong>Device:</strong> DEV-001977 (Desktop)</li>
-<li><strong>Location:</strong> Boston</li>
-<li><strong>New recipient?:</strong> No (established counterparty)</li>
-<li><strong>Account age (days):</strong> 602</li>
-<li><strong>Days since last activity:</strong> 13 (no dormancy)</li>
-<li><strong>Days since password change:</strong> 144</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div></div>
-        </div>
-      </details>
-    </section>
-    
 
-    <section class="case" id="T11117_auto_approve">
-      <div class="case-header">
-        <span class="bucket-tag">Auto-approve</span>
-        <h3>&quot;Friendly fraud&quot; that no system could have caught</h3>
-        <span class="badge approve">? ?</span>
+      <div class="section">
+        <div class="section-head"><span class="section-num">03</span><span class="section-title">Why it landed here</span></div>
+        <div class="card"><ul class="factlist">${c.verdictBullets.map(f => `<li>${f}</li>`).join("")}</ul></div>
       </div>
-      <p class="story">An everyday-looking purchase, auto-approved -- and later disputed as fraud anyway. There was zero transaction-time signal to find. Included deliberately, to be honest about the system&#x27;s real ceiling rather than implying total coverage.</p>
-      <div class="routed">Routed because: <code>auto_approve</code> &middot; raw-evidence tier: <strong>low</strong> (0 pts)</div>
-      <div class="gt">Ground truth: <strong>Confirmed fraud</strong> (archetype: none)</div>
-      <div class="grid2">
-        <div>
-          <h4>Risk factors</h4>
-          <p class="muted">None.</p>
-          <h4>Mitigating factors</h4>
-          <p class="muted">None.</p>
-        </div>
-        <div>
-          <h4>Why this decision</h4>
-          <p></p>
-        </div>
-      </div>
-      <details>
-        <summary>Transaction record &amp; tool calls</summary>
-        <div class="grid2">
-          <div><ul>
-<li><strong>Type:</strong> Pay for Purchase</li>
-<li><strong>Amount:</strong> $112.40</li>
-<li><strong>Purchase category:</strong> Groceries</li>
-<li><strong>Account balance before transaction:</strong> $2,687.15</li>
-<li><strong>Billing location:</strong> Houston</li>
-<li><strong>Shipping location:</strong> Houston (matches billing)</li>
-<li><strong>Device:</strong> DEV-001360 (Mobile)</li>
-<li><strong>Location:</strong> Houston</li>
-<li><strong>New recipient?:</strong> No (established counterparty)</li>
-<li><strong>Account age (days):</strong> 909</li>
-<li><strong>Days since last activity:</strong> 17 (no dormancy)</li>
-<li><strong>Days since password change:</strong> 126</li>
-<li><strong>Status:</strong> Approved</li>
-</ul></div>
-          <div></div>
-        </div>
-      </details>
-    </section>
-    
-</main>
-<footer>
-  <p>Built as a portfolio project exploring agentic AI system design and product judgment around
-  generative AI vs. deterministic logic in a fraud-review context.</p>
-</footer>
+    `;
+  }
 
+  html += `
+    <details class="rawrecord">
+      <summary>Raw transaction record</summary>
+      <div class="raw-grid">
+        ${Object.entries(c.raw).map(([k, v]) => `<div class="raw-kv"><span class="k">${k}</span><span class="v">${v}</span></div>`).join("")}
+      </div>
+    </details>
+  `;
+
+  document.getElementById("detail").innerHTML = `<div class="detail-inner">${html}</div>`;
+}
+
+function selectCase(id) {
+  const c = CASES.find(x => x.id === id);
+  if (!c) return;
+  document.querySelectorAll(".rail-item").forEach(el => el.classList.toggle("active", el.dataset.id === id));
+  renderCase(c);
+  document.getElementById("detail").scrollTop = 0;
+  history.replaceState(null, "", "#" + id);
+}
+
+renderRail();
+const startId = (location.hash || "").replace("#", "") || CASES[0].id;
+selectCase(CASES.find(c => c.id === startId) ? startId : CASES[0].id);
+</script>
 </body>
 </html>
